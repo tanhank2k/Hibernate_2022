@@ -1,5 +1,9 @@
 package view;
 
+import common.Role;
+import model.User;
+import service.UserService;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -10,11 +14,14 @@ public class SignIn extends JFrame {
 
     private JPanel contentPane;
     private JTextField txtFieldUsername;
-    private JTextField txtFieldPassword;
+    private JPasswordField txtFieldPassword;
+    private UserService userService;
     private final ButtonGroup buttonGroup = new ButtonGroup();
 
     public SignIn() {
-        setTitle("SIGN - IN");
+        setLocationRelativeTo(null);
+        userService = new UserService();
+        setTitle("\u0110\u0103ng nh\u1EADp");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 500, 252);
         contentPane = new JPanel();
@@ -40,7 +47,7 @@ public class SignIn extends JFrame {
 
         JLabel labelUsername = new JLabel("T\u00EAn ng\u01B0\u1EDDi d\u00F9ng");
 
-        txtFieldPassword = new JTextField();
+        txtFieldPassword = new JPasswordField();
         txtFieldPassword.setColumns(10);
 
         JButton btnSignIn = new JButton("\u0110\u0103ng nh\u1EADp");
@@ -48,19 +55,39 @@ public class SignIn extends JFrame {
         {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (txtFieldUsername.getText().equals("admin") && txtFieldPassword.getText().equals("admin")) {
-                    JOptionPane.showMessageDialog(null, "Welcome Admin!");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Wrong username or password!");
+                if (buttonGroup.getSelection() == null) {
+                    JOptionPane.showMessageDialog(null, "Vui l\u00F2ng ch\u1ECDn lo\u1EA1i t\u00E0i kho\u1EA3n");
+                    return;
+                }
+
+                if (buttonGroup.getSelection().getActionCommand().equals("Gi\u00E1o vi\u00EAn")){
+                    User user = userService.signIn(txtFieldUsername.getText(), String.valueOf(txtFieldPassword.getPassword()), Role.TEACHER.name());
+                    if (user != null) {
+                        new TeacherHome().setVisible(true);
+                        dispose();
+                        return;
+                    }
+                    JOptionPane.showMessageDialog(null, "M\u1EADt kh\u1EA9u ho\u1EB7c t\u00EAn ng\u01B0\u1EDDi d\u00F9ng kh\u00F4ng ch\u00EDnh x\u00E1c");
+                }
+
+                if (buttonGroup.getSelection().getActionCommand().equals("Sinh vi\u00EAn")){
+                    User user = userService.signIn(txtFieldUsername.getText(), String.valueOf(txtFieldPassword.getPassword()), Role.STUDENT.name());
+                    if (user != null) {
+                        new StudentHome().setVisible(true);
+                        dispose();
+                        return;
+                    }
+                    JOptionPane.showMessageDialog(null, "M\u1EADt kh\u1EA9u ho\u1EB7c t\u00EAn ng\u01B0\u1EDDi d\u00F9ng kh\u00F4ng ch\u00EDnh x\u00E1c");
                 }
             }
         });
 
-
         JRadioButton radioTeacher = new JRadioButton("Gi\u00E1o vi\u00EAn");
+        radioTeacher.setActionCommand("Gi\u00E1o vi\u00EAn");
         buttonGroup.add(radioTeacher);
 
         JRadioButton radioStudent = new JRadioButton("Sinh vi\u00EAn");
+        radioStudent.setActionCommand("Sinh vi\u00EAn");
         buttonGroup.add(radioStudent);
         GroupLayout gl_panelMain = new GroupLayout(panelMain);
         gl_panelMain.setHorizontalGroup(
@@ -83,6 +110,11 @@ public class SignIn extends JFrame {
         );
 
         JButton btnSignUp = new JButton("\u0110\u0103ng k\u00FD");
+        btnSignUp.addActionListener(e -> {
+            SignUp signUp = new SignUp();
+            signUp.setVisible(true);
+            dispose();
+        });
         GroupLayout gl_panelForm = new GroupLayout(panelForm);
         gl_panelForm.setHorizontalGroup(
                 gl_panelForm.createParallelGroup(GroupLayout.Alignment.LEADING)
